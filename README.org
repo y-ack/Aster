@@ -1,0 +1,32 @@
+* Aster
+Windowing console UI library for PowerShell
+
+
+Detailed specification to come
+
+** PowerShell script policy
+By default, PowerShell will refuse to run scripts that did not originate on your machine.
+To use Aster and run the examples, you will have to perform the following steps:
+
+*** Set Execution Policy
+You may have to allow PowerShell to run external scripts at all with [[https://docs.microsoft.com/en-us/powershell/module/Microsoft.PowerShell.Security/Set-ExecutionPolicy?view=powershell-5.1][Set-ExecutionPolicy]].
+#+BEGIN_SRC powershell
+Set-ExecutionPolicy Unrestricted
+#+END_SRC
+Please also consider the -Scope [Process | CurrentUser | LocalMachine] parameter when performing this operation.
+
+*** Unblocking Aster files
+Secondly, Aster's files must be marked as safe (else you will be asked to confirm running each class file used by Aster)
+This can be accomplished by changing the working directory to Aster's root folder and running the following command.
+#+BEGIN_SRC powershell
+Get-ChildItem -Recurse | Unblock-File
+#or the more concise: gci -r|Unblock-File
+#+END_SRC
+
+Finally, test the setup by running the example file
+#+BEGIN_SRC powershell
+.\Examples\ControllerExample.ps1
+#+END_SRC
+
+** Keys: 
+<tab> : change focus
