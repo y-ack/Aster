@@ -1,6 +1,7 @@
 * Aster
 Windowing console UI library for PowerShell
 
+[[http://kland.smilebasicsource.com/i/tpdyf.png]]
 
 Detailed specification to come
 
@@ -22,6 +23,8 @@ This can be accomplished by changing the working directory to Aster's root folde
 Get-ChildItem -Recurse | Unblock-File
 #or the more concise: gci -r|Unblock-File
 #+END_SRC
+There may be a better way that I am unaware of.
+
 
 Finally, test the setup by running the example file
 #+BEGIN_SRC powershell
