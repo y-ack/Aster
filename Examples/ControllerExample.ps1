@@ -1,4 +1,4 @@
-﻿using module C:\Users\ben\Documents\WindowsPowerShell\Aster\
+﻿using module ..\..\Aster\
 using namespace System.Management.Automation.Host
 using module ..\Classes\Widget.psm1
 using module ..\Classes\Textbox.psm1
