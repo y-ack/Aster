@@ -1,4 +1,4 @@
-﻿using module ..\..\Aster\
+﻿using module ..\Aster.psd1
 using namespace System.Management.Automation.Host
 using module ..\Classes\Widget.psm1
 using module ..\Classes\Textbox.psm1
