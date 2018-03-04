@@ -1,0 +1,72 @@
+* [Window]
+** Synopsis
+Aster Window class
+
+** Description
+Container widget meant to represent a window.
+Along with the requirements inherited from widgets:
+A window must:
+- Be able to have children
+- Have a title
+- Provide its inner dimensions
+A window may:
+- Have a border
+
+** Examples
+#+BEGIN_SRC powershell
+$Controller = [Controller]::new()
+
+$Window1 = [Window]::new(0,0,35,16, "My Window")
+$Text = [Textbox]::new(1,1,33,14,@("line 1","line 2"))
+$Window1.AddWidget($Text)
+
+$Controller.AddWidget(@Window1)
+$Controller.Start()
+#+END_SRC
+#+BEGIN_SRC powershell
+$Rectangle = [System.Management.Automation.Host.Rectangle]::new(0, 0, 32, 24)
+$Window = [Window]::new($Rectangle, "Example")
+#+END_SRC
+
+** Properties :unused:unused_properties:
+- ~[Hashtable]$WindowCharacter~ :: The map of characters to use for the window border
+- ~[UInt16]$Priority~ :: Window draw priority.  Currently unused.
+- ~[String]$Title~ :: Title string
+- ~[String]$TitleFormat~ :: Format string for title.  Default: ~<{Horiz Border Char}{$Title}~
+- ~[UInt32]$ScrollPosition~ :: Window scroll offset.  Currently unused.
+- ~[Boolean]$ShowScrollbar~ :: Force scrollbar visibility.  Currently unused.
+- ~[Boolean]$Autoscroll~ :: Currently unused.
+- ~[Boolean]$ContainsFocusedWidget~ :: Internal property for visual changes based on focus.  Currently unused.
+- ~[ConsoleColor]$HighlightColor~ :: Currently unused.
+*** Inherited from [[Widget.org][Widget]]:
+- ~[Rectangle]$Position~
+- ~[System.ConsoleColor]$ForegroundColor~
+- ~[System.ConsoleColor]$BackgroundColor~
+- ~[System.ConsoleColor]$BorderColor~
+- ~[List[Widget]]$Children~
+- +~[Dictionary`2[Char,Func[Bool]]]$Keys~+
+- ~[Dictionary`2[Char,Func[Bool]]]$Controls~
+- ~[bool]$CanFocus~
+- ~[guid]$GUID~
+ 
+
+** Methods
+*** GetInnerWidth()
+Return inner width (ignores border and scroll gutter)
+*** GetTopBorder()
+Form the top border string.
+*** GetBottomBorder()
+Form the bottom border string.
+*** GetBodySpan()
+Form the normal window body spanning string.
+**** Inherited from [[Widget.org][Widget]]
+- GetWidth()
+- GetHeight()
+- GetBufferCellArray()
+- CopyChildBuffers()
+- AddWidget()
+- GetChildren()
+- SelectFocusedChild()
+- AddControls()
+- HandleKey()
+- Background()

@@ -1,29 +1,56 @@
-﻿* Controller class
+﻿* [Controller]
 ** Synopsis
-Composer class for Aster
+Aster Composer class
 
 ** Description
 Top-level widget that provides functionality to child widgets
-Add widgets, then call `Start()` method.
+Add widgets, then call ~Start()~ method.
 Controller handles the following actions:
 - Drawing widgets to screen
 - Handling widget focus
 - Handling and passing input
 - Calling update functions on widgets
 
-** Properties
-- [List[Widget]]$AllWidgets :: A flattened list of child widgets used for searching in focus change
-- [int]$focused :: the index of the current focused widget in `$AllWidgets`
-Inherited from [[Widget]]:
-  - 
-  - 
+** Examples
+#+BEGIN_SRC powershell
+$Controller = [Controller]::new()
+$Controller.Add($Widgets)
+$Controller.Start()
+#+END_SRC
+
+** Properties :unused:unused_properties:
+- ~[List[Widget]]$AllWidgets~ :: A flattened list of child widgets used for searching in focus change
+- ~[int]$focused~ :: the index of the current focused widget in ~$AllWidgets~
+*** Inherited from [[Widget.org][Widget]]:
+- ~[Rectangle]$Position~
+- ~[System.ConsoleColor]$ForegroundColor~
+- ~[System.ConsoleColor]$BackgroundColor~
+- ~[System.ConsoleColor]$BorderColor~
+- ~[List[Widget]]$Children~
+- +~[Dictionary`2[Char,Func[Bool]]]$Keys~+
+- ~[Dictionary`2[Char,Func[Bool]]]$Controls~
+- ~[bool]$CanFocus~
+- ~[guid]$GUID~
+ 
+
 ** Methods
 *** Start()
 Pass control to the Controller and begin the rendering loop
 **** Parameters
-- [scriptblock]$Before :: Optional script to execute at the beginning of each cycle
+- ~[scriptblock]$Before~ :: Optional script to execute at the beginning of each cycle
 *** CallChildren()
-Calls the `Background()` method on direct child widgets of this object
+Calls the ~Background()~ method on direct child widgets of this object
 *** AddWidget()
-Override of base class `AddWidget()`
-Adds a flattened tree of the specified items to internal `$AllWidgets` 
+Override of base class ~AddWidget()~
+Adds a flattened tree of the specified items to internal ~$AllWidgets~
+**** Inherited from [[Widget.org][Widget]]
+- GetWidth()
+- GetHeight()
+- GetBufferCellArray()
+- CopyChildBuffers()
+- AddWidget()
+- GetChildren()
+- SelectFocusedChild()
+- AddControls()
+- HandleKey()
+- Background()

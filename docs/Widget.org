@@ -1,0 +1,77 @@
+* [Widget]
+** Synopsis
+Aster base widget class
+
+** Description
+Base class for all widget objects, a widget represents a unique UI component.
+A widget must be able to:
+- Provide a BufferCell array representing it's visual state
+- Have a unique ID
+- Accept input handling requests
+- Accept requests to do background updating
+- Provide a list of child widgets, if any
+- Provide its width and height
+A widget may be able to:
+- Have child widgets
+- Request that its children perform background updates
+
+** Examples
+#+BEGIN_SRC powershell
+$Widget = [Widget]::new(0,0,50,30)
+#+END_SRC
+#+BEGIN_SRC powershell
+# setting properties
+$Widget = [Widget]::new(0,0,50,30)
+$Widget.CanFocus = $True
+$Widget.ForegroundColor = [System.ConsoleColor]::Green
+#+END_SRC
+
+** Properties
+- ~[Rectangle]$Position~ :: Rectangle representing widget position relative to parent
+- ~[System.ConsoleColor]$ForegroundColor~ :: Color to use for body text
+- ~[System.ConsoleColor]$BackgroundColor~ :: Color to use for the widget background fill
+- ~[System.ConsoleColor]$BorderColor~ :: Color to use for the widget's border
+- ~[List[Widget]]$Children~ :: The widget's child widgets
+- +~[Dictionary`2[Char,Func[Bool]]]$Keys~+ :: Unused
+- ~[Dictionary`2[Char,Func[Bool]]]$Controls~ :: Currently unused
+- ~[bool]$CanFocus~ :: Whether this widget can take focus or not.  Default false.
+- ~[guid]$GUID~ :: A GUID generated at construction
+
+** Methods
+*** GetWidth()
+Return outer width (right - left)
+*** GetHeight()
+Return outer height (bottom - top)
+*** GetBufferCellArray()
+Provide the text representation of this widget as a two-dimensional array of BufferCells.
+Note: in overrides, remember to draw children as well
+*** CopyChildBuffers()
+Copy the result of calling each child widget's ~GetBufferCellArray()~, respecting the relative ~Position~ property, to a buffer.
+**** Parameters
+- ~[BufferCell[,]]$ParentBuffer~ :: The buffer to copy children onto.  While the function also returns a reference to $ParentBuffer, it does not need to be used as the modifications happen in place.
+*** AddWidget()
+Adds widgets to the list of children.
+**** Paramters
+- ~[Widget[]]$Widgets~ :: Widgets to add
+*** GetChildren()
+Finds children recursively.  The order of the resulting list is important.  If F# represents the depth of an element and child elements belong to the first valid parent to their "left":
+~[F1][.F2][F1][.F2][.F2][..F3][..F3][.F2][F1][.F2][..F3][F1]~
+*** SelectFocusedChild()
+Find the index into ~$Children~ (the list of direct child widgets) that represents or contains the widget matching a given ID
+**** Parameters
+- ~[guid]$Focused~ :: ID of widget element to find a tree step for.
+*** AddControls()
+
+**** Parameters
+- ~[Dictionary`2[Char,Func[Bool]]]$Controls~ :: 
+*** HandleKey()
+Accept input and pass it to focused child
+Note: in overrides, it is usually desired to use ~SelectFocusedChild()~ to pass the input to the expected receiver if ~$focused~ does not match the current element.
+**** Parameters
+- ~[ConsoleKeyInfo]$Key~ :: Key information to process
+- ~[guid]$focused~ :: GUID of widget that should receive the input.  A widget is not required to respect this; an input could be "intercepted" by a parent element.
+*** Background()
+Do miscellaneous background updating.
+Note: in overrides, remember to call children as well
+**** Parameters
+- ~[guid]$focused~ :: The focused element is provided to allow for e.g. widgets that provide a visual cue when in a focused state.
