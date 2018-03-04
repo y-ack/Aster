@@ -1,4 +1,4 @@
-﻿* [Controller]
+* [Controller]
 ** Synopsis
 Aster Composer class
 
