@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.0
+#Requires -Version 5.0
 using namespace System.Collections.Generic
 using namespace System.Management.Automation.Host
 using module .\Classes\Widget.psm1
@@ -7,25 +7,48 @@ using module .\Classes\Window.psm1
 using module .\Classes\Textbox.psm1
 
 
-$ClassList = 
-@(
-    'Widget',
-    'Controller',
-    'Window',
-    'Textbox'
-)
-
+<#
+    .SYNOPSIS
+    Returns an Aster object containing type properties for constructing Aster Widget objects.
+    .DESCRIPTION
+    Adds classes from the Classes directory to an object to be exposed to the caller.
+    This allows the Aster types to be used without loaded individually in ~using~ statements.
+    .EXAMPLE
+    $Aster = New-Aster
+    $Widget = $Aster.Widget::new()
+#>
 function New-Aster
 {
-    $Aster = New-Object –TypeName PSObject
-    $ClassList | ForEach {
-        $Aster | Add-Member -MemberType NoteProperty -Name $_ -Value (Invoke-Expression "[$_]")
+    begin 
+    {
+        $Aster = New-Object –TypeName PSObject
+        $ClassList = Get-ChildItem .\Classes
     }
-    return $Aster
+    process 
+    {
+        
+        $ClassList | ForEach {
+            $Class = $_.BaseName
+            try 
+            {
+                $Aster | Add-Member -MemberType NoteProperty -Name $Class -Value (Invoke-Expression "[$Class]")
+            }
+            catch #Perhaps forgot to add to this file includes?
+            {
+                throw [System.TypeLoadException]::new("Aster type " + $_.FullName + " not loaded.")
+            }
+        }
+        return $Aster
+    }
 }
+
 
 # Global functions
 
+<#
+.SYNOPSIS
+    Internal use function for overwriting portions of an existing string
+#>
 function InsertString 
 {
     param
@@ -39,30 +62,29 @@ function InsertString
     { 
         $Length = $Source.Length 
     }
-
-    return (
-        $Destination[0..($Index-1)] + 
-        $Source.Substring(0,$Length) + 
-        $Destination.Substring($Index+$Length)
-    ) -join ''
+    # Form the three sections and combine them again for the final string
+    return ($Destination[0..($Index-1)] + 
+            $Source.Substring(0,$Length) + 
+            $Destination.Substring($Index+$Length)
+           ) -join ''
 }
 
 <#
-.DESCRIPTION 
-Copy 2D array slices, preserving dimensionality
-If source length exceeds available region in destination, overflow cells are dropped
+    .DESCRIPTION 
+    Copy 2D array slices, preserving dimensionality
+    If source length exceeds available region in destination, overflow cells are dropped
+    
+    .PARAMETER Source
+    Source array to copy from
 
-.PARAMETER Source
-Source array to copy from
+    .PARAMETER Destination
+    Destination array to copy to
 
-.PARAMETER Destination
-Destination array to copy to
+    .PARAMETER [Destination/Source]Index[X/Y]
+    Index to start copy from/to.  Similar to normal copy
 
-.PARAMETER [Destination/Source]Index[X/Y]
-Index to start copy from/to.  Similar to normal copy
-
-.PARAMETER Length[X/Y]
-Dimensions of copy region.  Cells that overflow the destination are ignored
+    .PARAMETER Length[X/Y]
+    Dimensions of copy region.  Cells that overflow the destination are ignored
 #>
 function 2dCopy 
 {
@@ -96,31 +118,30 @@ function 2dCopy
         $LengthX += $DestinationIndexX
     }
 
-    [int]$clipX = [Math]::Min([Math]::Min(
-        $Destination.GetUpperBound(1) - $DestinationIndexX + 1, 
-        $LengthX),
-        $Source.GetUpperBound(1)+1
-    )
-    [int]$clipY = [Math]::Min([Math]::Min(
-        $Destination.GetUpperBound(0) - $DestinationIndexY + 1, 
-        $LengthY), 
-        $Source.GetUpperBound(0)+1
-    )
+    [int]$clipX = [Math]::Min([Math]::Min($Destination.GetUpperBound(1) - $DestinationIndexX + 1, 
+                                          $LengthX),
+                              $Source.GetUpperBound(1)+1
+                             )
+    [int]$clipY = [Math]::Min([Math]::Min($Destination.GetUpperBound(0) - $DestinationIndexY + 1, 
+                                          $LengthY), 
+                              $Source.GetUpperBound(0)+1
+                             )
     [int]$SourceColumns = $Source.GetUpperBound(1) + 1
     [int]$DestinationColumns = $Destination.GetUpperBound(1) + 1
     [int]$DestinationRowOffset = $DestinationIndexY * $DestinationColumns
     for ([int]$Y = $SourceIndexY; $Y -lt $clipY; $Y++)
     {
         $DestinationLinearIndex = $DestinationRowOffset + ($DestinationColumns * $Y) + $DestinationIndexX
-        [Array[,]]::Copy(
-            $Source, 
-            $SourceColumns * $Y + $SourceIndexX, 
-            $Destination, 
-            $DestinationLinearIndex, 
-            $ClipX
-        )
+        [Array[,]]::Copy($Source, 
+                         $SourceColumns * $Y + $SourceIndexX, 
+                         $Destination, 
+                         $DestinationLinearIndex, 
+                         $ClipX
+                        )
     }
 }
+
+#region Buffer manipulation functions
 
 function Set-BufferCell
 {
@@ -184,6 +205,8 @@ function Set-BufferRow
     }
 }
 
+#endregion
+
 function New-CoordinatesPair
 {
     param
@@ -193,6 +216,7 @@ function New-CoordinatesPair
     )
     [Coordinates[]]$Pairs = [Coordinates[]]::new(0)
     
+    # Describe the combinations of these ranges as an array of coordinates
     $Range1|%{$y=$_;$Range2|%{$Pairs+=[Coordinates]::new($_,$y)}}
     return $Pairs
 }
